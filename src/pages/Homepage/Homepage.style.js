@@ -8,6 +8,8 @@ export const Wrapper=styled.div`
     }
 
     .query{
+        font-size:1rem;
+        margin:2rem 0rem;
         font-weight:bold;
     }
 
