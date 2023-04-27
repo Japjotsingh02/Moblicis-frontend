@@ -26,6 +26,7 @@ const StyledTableRow = styled(TableRow)(({ theme }) => ({
 const CommonTable=(props)=> {
     const [DataArray,setDataArray]=useState(null);
     const [IsLoading,setIsLoading]=useState(true);
+    const notAcceptedValues=["_id","id","createdAt","updatedAt","__v"];
     
     const fetchData=async()=>{
         setIsLoading(true);
@@ -44,7 +45,7 @@ const CommonTable=(props)=> {
     useEffect(() => {
       fetchData();
     }, []);
-
+    
     return (
         <TableContainer component={Paper}>
           {IsLoading ?
@@ -60,11 +61,15 @@ const CommonTable=(props)=> {
           </Box>
           :
             <Table sx={{ minWidth: 700 }} aria-label="customized table">
-            <TableHead>
+            <TableHead sx={{textTransform:'capitalize'}}>
               <TableRow>
-                {Object.keys(DataArray[0]).map((i)=>{
-                  return <StyledTableCell>{i}</StyledTableCell>;
-                })}
+                {Object.keys(DataArray[0]).filter((val)=>{
+                  return !notAcceptedValues.includes(val);
+                })
+                  .map((i)=>{
+                      return <StyledTableCell>{i}</StyledTableCell>;
+                  })
+                }
               </TableRow>
             </TableHead>
             <TableBody>
@@ -72,9 +77,16 @@ const CommonTable=(props)=> {
                 DataArray.map((row)=>{
                   return(
                     <StyledTableRow key={row.id}>
-                      {Object.values(row).map((value)=>(
-                        <StyledTableCell>{value}</StyledTableCell>
-                      ))}
+                      {Object.values(Object.keys(row)
+                        .reduce(function(r,e){
+                          if (!notAcceptedValues.includes(e)) r[e] = row[e]
+                          else if(props.reqBody==="Top10Cities" && e==="_id") r[e] = row[e]
+                                return r;
+                        }, {}))
+                        .map((value)=>(
+                          <StyledTableCell>{value}</StyledTableCell>
+                        ))
+                      }
                   </StyledTableRow>
                 )})
               }
